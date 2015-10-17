@@ -2,7 +2,6 @@ package agency;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.Registry;
 import java.util.Collection;
 
 import remote.ICarRentalCompany;
@@ -23,8 +22,8 @@ public class ManagerSession implements IManagerSession {
 	}
 
 	@Override
-	public void registerCarRentalCompany(Registry registry, String name) throws RemoteException, NotBoundException {
-		agency.registerCompany(registry, name);
+	public void registerCarRentalCompany(ICarRentalCompany comp) throws RemoteException, NotBoundException {
+		agency.registerCompany(comp);
 	}
 
 	@Override

@@ -35,11 +35,11 @@ public class RentalServer {
 		
 		String hertzName = "Hertz";
 		String hertzNameInRegistry = "Company: Hertz";
-		createCompanyRegister(hertzNameInRegistry, hertzName, "hertz.csv", registry);
+		ICarRentalCompany hertz = createCompanyRegister(hertzNameInRegistry, hertzName, "hertz.csv", registry);
 		
 		String dockxName = "Dockx";
 		String dockxNameInRegistry = "Company: Dockx";
-		createCompanyRegister(dockxNameInRegistry, dockxName, "dockx.csv", registry);
+		ICarRentalCompany dockx = createCompanyRegister(dockxNameInRegistry, dockxName, "dockx.csv", registry);
 		
 		
 		// Get agency and register companies there
@@ -51,17 +51,19 @@ public class RentalServer {
 		IManagerSession ses = agency.startManagerSession();
 		System.out.println(ses.hello());
 		System.out.println("Registering companies with agency...");
-		ses.registerCarRentalCompany(registry, hertzNameInRegistry);
-		ses.registerCarRentalCompany(registry, dockxNameInRegistry);
+		ses.registerCarRentalCompany(hertz);
+		ses.registerCarRentalCompany(dockx);
 		agency.endSession(ses);
 		System.out.println("All done.");
 	}
 	
-	private static void createCompanyRegister(String bindName, String compName, String dataFileName, Registry registry) throws NumberFormatException, ReservationException, IOException {
+	private static ICarRentalCompany createCompanyRegister(String bindName, String compName, String dataFileName, Registry registry) throws NumberFormatException, ReservationException, IOException {
 		List<Car> cars = loadData(dataFileName);
 		CarRentalCompany crc = new CarRentalCompany(compName, cars); 
 		ICarRentalCompany stub = (ICarRentalCompany) UnicastRemoteObject.exportObject(crc, 0);
 		registry.rebind(bindName, stub); //use rebind in case something with the same name already exists
+		
+		return stub;
 	}
 
 	public static List<Car> loadData(String dataFileName)

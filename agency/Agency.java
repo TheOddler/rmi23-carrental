@@ -71,10 +71,7 @@ public class Agency implements IAgency {
 		return companies.get(name);
 	}
 	
-	void registerCompany(Registry registry, String name) throws RemoteException, NotBoundException {
-		System.out.println("Registering company: '" + name + "' from this registry: " + registry);
-		
-		ICarRentalCompany comp = (ICarRentalCompany) registry.lookup(name);
+	void registerCompany(ICarRentalCompany comp) throws RemoteException, NotBoundException {
 		companies.put(comp.getName(), comp);
 	}
 	

@@ -87,10 +87,14 @@ public class ReservationSession implements IReservationSession {
 	public CarType getCheapestCarType(Date from, Date to) throws RemoteException {
 		Collection<CarType> types = getAvailableCarTypes(from, to);
 		
+		System.out.println("Checking for cheapest car...");
+		
 		double minCost = Double.MAX_VALUE;
 		CarType cheapest = null;
 		for(CarType type: types) {
+			System.out.println("Checking " + type.getName());
 			double cost = type.getRentalPricePerDay();
+			
 			if (cost < minCost) {
 				minCost = cost;
 				cheapest = type;

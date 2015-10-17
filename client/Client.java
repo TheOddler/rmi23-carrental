@@ -79,7 +79,10 @@ public class Client extends AbstractTestManagement<IReservationSession, IManager
 	protected void checkForAvailableCarTypes(IReservationSession session,
 			Date start, Date end) throws Exception {
 		Collection<CarType> available = session.getAvailableCarTypes(start, end);
-		System.out.println(available);
+		System.out.println("Available car types: ");
+		for (CarType type: available) {
+			System.out.println(type);	
+		}
 	}
 
 	@Override
