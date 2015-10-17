@@ -1,0 +1,10 @@
+Deplayment diagram
+Shows which classes are executed on which system as if it is a real distributed deployment, not the lab deployment where everything runs on the same machine.
+
+@startuml
+
+class Car;
+class CarRenter;
+
+
+@enduml

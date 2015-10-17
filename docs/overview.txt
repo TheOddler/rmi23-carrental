@@ -1,0 +1,20 @@
+# Overview
+
+... TODO
+
+# Remote classes
+
+## Agency
+
+# Serializable classes
+
+Note: All these classes are read-only (thus contain no public setters). This makes it safe to make them serializable and send them around.
+
+## ReservationConstrains
+The user can select constraints so these need to be send to the server.
+
+## CarType
+The user can ask for certain CarTypes (eg. the available ones) at several occasions. So these need to be send over to the client. It's a nicer design sending over CarType, rather than just a string (the name).
+
+## Quote
+The user can request his current quotes, so these need to be send over to the client.

@@ -1,0 +1,118 @@
+The full class diagram (thus showing both classes and methods)
+Indicate which classes are remotely accessible (by a <<Remote>> stereotype) and which classes will be exchanged between the different systems (by a <<Serializable>> stereotype).
+
+@startuml
+
+note "Most get/set methods are left out,\nas well as constructors that just set fields.\nThis to simplify the diagram." as getsetnote
+
+interface IAgency <<Remote>> {
+	+IReservationSession startReservationSession()
+	+IManagerSession startManagerSession()
+	+void endSession(ISession ses)
+}
+class Agency {
+	~IRentalCompany getCompany(String name);
+	~void registerCompany(ICarRentalCompany company)
+}
+
+interface ISession
+interface IReservationSession <<Remote>> {
+	+Quote createQuote(ReservationConstrains)
+	+Collection<Quote> getCurrentQuotes()
+	+void confirmQuotes()
+	
+	+Collection<CarType> getAvailableCarTypes(Date from, Date to)
+	+CarType getCheapestCarType(Date from, Date to)
+}
+interface IManagerSession <<Remote>> {
+	+void registerCarRentalCompany(ICarRentalCompany company)
+	+void unregisterCarRentalCompant(name)
+	
+	+Collection<String> getCarRentalCompanies()
+	+Collection<CarType> getCarTypesOf(String company)
+	
+	+int getNumberOfReservationsFor(CarType type, String company)
+	+int getNumberOfReservationsBy(String renter)
+	+String getMostPopularCarRentalCompany()
+}
+	
+class ReservationSession
+class ManagerSession
+
+
+interface ICarRentalCompany <<Remote>> {
+	
+}
+
+class CarRentalCompany {
+	-String name
+	
+	+Collection<CarType> getAllCarTypes()
+	+boolean isAvailable(String carTypeName, Date start, Date end)
+	+Collection<CarType> getAvailableCarTypes(Date start, Date end)
+	-Car getCar(int uid)
+	-Collection<Car> getAvailableCars(String carType, Date start, Date end)
+	+Quote createQuote(ReservationConstraints constraints, String client)
+	-double calculateRentalPrice(double rentalPricePerDay, Date start, Date end)
+	+Reservation confirmQuote(Quote quote)
+	+void cancelReservation(Reservation res)
+	+Collection<Reservation> getReservationsByRenter(String clientName)
+	+int getNumberOfReservationsForCarType(String carType)
+}
+
+class Car {
+	-int id
+	
+	+boolean isAvailable(Date start, Date end)
+	+void addReservation(Reservation res)
+	+void removeReservation(Reservation reservation)
+	+Collection<Reservation> getReservations()
+}
+
+class CarType <<Serializable>> {
+	-String name
+	-int nbOfSeats
+	-boolean smokingAllowed
+	-double rentalPricePerDay
+	-float trunkSpace
+}
+	
+class Quote <<Serializable>> {
+	-Date startDate
+	-Date endDate
+	-String carRenter
+	-String rentalCompany
+	-String carType
+	-double rentalPrice
+}
+
+class Reservation {
+	-int carId
+}
+
+class ReservationConstraints <<Serializable>> {
+	-Date startDate
+	-Date endDate
+}
+
+IAgency <|-- Agency
+Agency --* "0..*" ISession
+Agency --* "0..*" ICarRentalCompany
+
+
+ISession <|-- IReservationSession
+ISession <|-- IManagerSession
+IReservationSession <|-- ReservationSession
+IManagerSession <|-- ManagerSession
+
+
+ICarRentalCompany <|-- CarRentalCompany
+CarRentalCompany --* "0..*" Car
+
+Car --* CarType: isOfType
+Car --* "0..*" Reservation
+
+ReservationConstraints --> CarType: wantedType
+Reservation --|> Quote
+
+@enduml
