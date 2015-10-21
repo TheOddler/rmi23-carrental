@@ -8,16 +8,19 @@ note "Most get/set methods are left out,\nas well as constructors that just set 
 interface IAgency <<Remote>> {
 	+IReservationSession startReservationSession()
 	+IManagerSession startManagerSession()
-	+void endSession(ISession ses)
+	+void endReservationSession(IReservationSession ses)
+	+void endManagerSession(IManagerSession ses)
 }
 class Agency {
 	~IRentalCompany getCompany(String name);
 	~void registerCompany(ICarRentalCompany company)
+	~void unregisterCarRentalCompany(String name)
+	~Collection<String> getCarRentalCompanyNames()
+	~Collection<ICarRentalCompany> getCarRentalCompanies()
 }
 
-interface ISession
 interface IReservationSession <<Remote>> {
-	+Quote createQuote(ReservationConstrains)
+	+Quote createQuote(ReservationConstrains constr, String company)
 	+Collection<Quote> getCurrentQuotes()
 	+void confirmQuotes()
 	
@@ -86,7 +89,7 @@ class Quote <<Serializable>> {
 	-double rentalPrice
 }
 
-class Reservation {
+class Reservation <<Serializable>> {
 	-int carId
 }
 
@@ -96,12 +99,10 @@ class ReservationConstraints <<Serializable>> {
 }
 
 IAgency <|-- Agency
-Agency --* "0..*" ISession
+Agency --* "0..*" IReservationSession
+Agency --* "0..*" IManagerSession
 Agency --* "0..*" ICarRentalCompany
 
-
-ISession <|-- IReservationSession
-ISession <|-- IManagerSession
 IReservationSession <|-- ReservationSession
 IManagerSession <|-- ManagerSession
 

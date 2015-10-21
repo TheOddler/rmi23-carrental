@@ -1,12 +1,16 @@
 package remote;
 
 import java.rmi.NotBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Collection;
 
 import shared.CarType;
 
-public interface IManagerSession extends ISession {
+public interface IManagerSession extends Remote {
+
+	String hello() throws RemoteException;
+	
 	void registerCarRentalCompany(ICarRentalCompany comp) throws RemoteException, NotBoundException;
 	void unregisterCarRentalCompany(String name) throws RemoteException;
 	

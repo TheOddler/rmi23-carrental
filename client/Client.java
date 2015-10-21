@@ -72,7 +72,7 @@ public class Client extends AbstractTestManagement<IReservationSession, IManager
 	@Override
 	protected IManagerSession getNewManagerSession(String name,
 			String carRentalName) throws Exception {
-		return agency.startManagerSession();
+		return agency.startManagerSession(name);
 	}
 
 	@Override

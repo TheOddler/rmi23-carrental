@@ -7,15 +7,12 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import remote.IAgency;
 import remote.ICarRentalCompany;
 import remote.IManagerSession;
 import remote.IReservationSession;
-import remote.ISession;
 
 public class Agency implements IAgency {
 	
@@ -36,8 +33,10 @@ public class Agency implements IAgency {
 		System.out.println("Done.");
 	}
 	
+	private Map<String, IReservationSession> resSessions = new HashMap<>();
+	private Map<String, IManagerSession> manSessions = new HashMap<>();
+
 	private Map<String, ICarRentalCompany> companies = new HashMap<>();
-	private Set<ISession> sessions = new HashSet<>();
 	
 	public Agency() {
 		
@@ -48,42 +47,60 @@ public class Agency implements IAgency {
 		return "Ahoy!, I'm t' agency.";
 	}
 
+	// I simply use a string for identifying clients and managers here
+	// I assume they are always unique and different client have different names
+	// I also assume the same client doesn't try to log in from multiple devices
+	// That's why these methods don't need to be synchronized
 	@Override
 	public IReservationSession startReservationSession(String client) throws RemoteException {
-		IReservationSession ses = new ReservationSession(this, client);
-		sessions.add(ses);
-		return (IReservationSession) UnicastRemoteObject.exportObject(ses, 0);
+		if (!resSessions.containsKey(client))
+		{
+			IReservationSession ses = new ReservationSession(this, client);
+			IReservationSession remote = (IReservationSession) UnicastRemoteObject.exportObject(ses, 0);
+			resSessions.put(client, remote);
+		}
+		return resSessions.get(client);
 	}
 
 	@Override
-	public IManagerSession startManagerSession() throws RemoteException {
-		IManagerSession ses = new ManagerSession(this);
-		sessions.add(ses);
-		return (IManagerSession) UnicastRemoteObject.exportObject(ses, 0);
-	}
-
-	@Override
-	public void endSession(ISession ses) {
-		sessions.remove(ses);
+	public IManagerSession startManagerSession(String name) throws RemoteException {
+		if (!manSessions.containsKey(name)) {
+			IManagerSession ses = new ManagerSession(this);
+			IManagerSession remote = (IManagerSession) UnicastRemoteObject.exportObject(ses, 0);
+			manSessions.put(name, remote);
+		}
+		return manSessions.get(name);
 	}
 	
-	ICarRentalCompany getCompany(String name) {
+	@Override
+	public void endReservationSession(IReservationSession ses) {
+		resSessions.remove(ses);
+	}
+
+	@Override
+	public void endManagerSession(IManagerSession ses) {
+		manSessions.remove(ses);
+	}
+	
+	
+	
+	synchronized ICarRentalCompany getCompany(String name) {
 		return companies.get(name);
 	}
 	
-	void registerCompany(ICarRentalCompany comp) throws RemoteException, NotBoundException {
+	synchronized void registerCompany(ICarRentalCompany comp) throws RemoteException, NotBoundException {
 		companies.put(comp.getName(), comp);
 	}
 	
-	void unregisterCarRentalCompany(String name) {
+	synchronized void unregisterCarRentalCompany(String name) {
 		companies.remove(name);
 	}
 	
-	Collection<String> getCarRentalCompanyNames() {
+	synchronized Collection<String> getCarRentalCompanyNames() {
 		return companies.keySet();
 	}
 	
-	Collection<ICarRentalCompany> getCarRentalCompanies() {
+	synchronized Collection<ICarRentalCompany> getCarRentalCompanies() {
 		return companies.values();
 	}
 }

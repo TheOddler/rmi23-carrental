@@ -34,7 +34,7 @@ public class CarRentalCompany implements ICarRentalCompany {
 
 	public CarRentalCompany(String name, List<Car> cars) {
 		logger.log(Level.INFO, "<{0}> Car Rental Company {0} starting up...", name);
-		setName(name);
+		this.name = name;
 		this.cars = cars;
 		for(Car car:cars)
 			carTypes.put(car.getType().getName(), car.getType());
@@ -47,10 +47,6 @@ public class CarRentalCompany implements ICarRentalCompany {
 	@Override
 	public String getName() {
 		return name;
-	}
-
-	private void setName(String name) {
-		this.name = name;
 	}
 
 	/* (non-Javadoc)
@@ -124,7 +120,7 @@ public class CarRentalCompany implements ICarRentalCompany {
 	 */
 
 	@Override
-	public Quote createQuote(ReservationConstraints constraints, String client)
+	synchronized public Quote createQuote(ReservationConstraints constraints, String client)
 			throws ReservationException {
 		logger.log(Level.INFO, "<{0}> Creating tentative reservation for {1} with constraints {2}", 
                         new Object[]{name, client, constraints.toString()});
@@ -150,7 +146,7 @@ public class CarRentalCompany implements ICarRentalCompany {
 	 * @see rental.ICarRentalompany#confirmQuote(rental.Quote)
 	 */
 	@Override
-	public Reservation confirmQuote(Quote quote) throws ReservationException {
+	synchronized public Reservation confirmQuote(Quote quote) throws ReservationException {
 		logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[]{name, quote.toString()});
 		List<Car> availableCars = getAvailableCars(quote.getCarType(), quote.getStartDate(), quote.getEndDate());
 		if(availableCars.isEmpty())
@@ -167,7 +163,7 @@ public class CarRentalCompany implements ICarRentalCompany {
 	 * @see rental.ICarRentalompany#cancelReservation(rental.Reservation)
 	 */
 	@Override
-	public void cancelReservation(Reservation res) {
+	synchronized public void cancelReservation(Reservation res) {
 		logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[]{name, res.toString()});
 		getCar(res.getCarId()).removeReservation(res);
 	}
@@ -178,7 +174,7 @@ public class CarRentalCompany implements ICarRentalCompany {
 	}
 
 	@Override
-	public List<Reservation> getReservationsByRenter(String clientName)
+	synchronized public List<Reservation> getReservationsByRenter(String clientName)
 			throws RemoteException {
 		List<Reservation> reservations = new ArrayList<Reservation>();
 		
@@ -194,7 +190,7 @@ public class CarRentalCompany implements ICarRentalCompany {
 	}
 
 	@Override
-	public int getNumberOfReservationsForTypeByName(String carType)
+	synchronized public int getNumberOfReservationsForTypeByName(String carType)
 			throws RemoteException {
 		int count = 0;
 		
@@ -208,12 +204,12 @@ public class CarRentalCompany implements ICarRentalCompany {
 	}
 
 	@Override
-	public int getNumberOfReservationsBy(String renter) throws RemoteException {
+	synchronized public int getNumberOfReservationsBy(String renter) throws RemoteException {
 		return getReservationsByRenter(renter).size();
 	}
 
 	@Override
-	public int getTotalNumberOfReservations() throws RemoteException {
+	synchronized public int getTotalNumberOfReservations() throws RemoteException {
 		int count = 0;
 		
 		for(Car car: cars) {

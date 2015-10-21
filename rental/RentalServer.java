@@ -48,12 +48,12 @@ public class RentalServer {
 		IAgency agency = (IAgency)agencyRegistry.lookup(IAgency.DEFAULT_REMOTE_AGENCY_NAME);
 		// Only managers can register companies, so we make a manager session
 		System.out.println("Starting manager session...");
-		IManagerSession ses = agency.startManagerSession();
+		IManagerSession ses = agency.startManagerSession("Hertz and Docks Manager Joe");
 		System.out.println(ses.hello());
 		System.out.println("Registering companies with agency...");
 		ses.registerCarRentalCompany(hertz);
 		ses.registerCarRentalCompany(dockx);
-		agency.endSession(ses);
+		agency.endManagerSession(ses);
 		System.out.println("All done.");
 	}
 	

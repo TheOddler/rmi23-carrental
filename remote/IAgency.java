@@ -9,12 +9,10 @@ public interface IAgency extends Remote {
 	
 	String hello() throws RemoteException;
 	
-	IReservationSession startReservationSession(String client)
-			throws RemoteException;
-	IManagerSession startManagerSession()
-			throws RemoteException;
+	IReservationSession startReservationSession(String client) throws RemoteException;
+	IManagerSession startManagerSession(String name) throws RemoteException;
 	
-	void endSession(ISession ses)
-			throws RemoteException;
+	void endReservationSession(IReservationSession ses) throws RemoteException;
+	void endManagerSession(IManagerSession ses) throws RemoteException;
 	
 }

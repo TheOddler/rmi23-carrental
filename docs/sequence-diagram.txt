@@ -1,7 +1,0 @@
-Also create sequence diagrams of the most important operations, including example scenario B with the reservation failure (see Subsection 3.1).
-
-@startuml
-
-Renter -> Car
-
-@enduml

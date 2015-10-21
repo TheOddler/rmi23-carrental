@@ -1,0 +1,54 @@
+Also create sequence diagrams of the most important operations, including example scenario B with the reservation failure (see Subsection 3.1).
+
+@startuml
+
+actor Renter
+participant Agency
+participant ReservationSession
+entity CarRentalCompanyA
+entity CarRentalCompanyB
+
+' 1
+Renter -> Agency : startReservationSession()
+Agency --> Renter : new? ReservationSession
+
+' 2 a
+Renter -> ReservationSession : GetAvailableCarTypes(A)
+
+ReservationSession -> Agency : GetCarRentalCompanies()
+Agency --> ReservationSession : All CarRentalCompanies
+
+ReservationSession -> CarRentalCompanyA : GetAvailableCarTypes(from, to)
+CarRentalCompanyA --> ReservationSession : AvailableCarTypes
+ReservationSession -> CarRentalCompanyB : GetAvailableCarTypes(from, to)
+CarRentalCompanyB --> ReservationSession : AvailableCarTypes
+
+ReservationSession --> Renter : Available Car Types
+
+' 2 b
+Renter -> ReservationSession : CreateQuote(constraints, A)
+ReservationSession --> Renter : A quote for A
+
+' 2 d
+Renter -> ReservationSession : CreateQuote(constraints, B)
+ReservationSession --> Renter : A quote for B
+
+' 3 b
+
+Renter -> ReservationSession : ConfirmQuotes()
+ReservationSession -> CarRentalCompanyA : ConfirmQuote(quoteA)
+CarRentalCompanyA --> ReservationSession : reservationA
+
+rnote over ReservationSession
+    Remembers the successful reservations
+endrnote
+
+ReservationSession -> CarRentalCompanyB : ConfirmQuote(quoteB)
+CarRentalCompanyB --> ReservationSession : throws ReservationExeption!
+
+ReservationSession -> CarRentalCompanyA : CancelReservation(reservationA)
+ReservationSession -> ReservationSession : Clears all quotes
+
+ReservationSession -> Renter : throws ReservationExeption
+
+@enduml

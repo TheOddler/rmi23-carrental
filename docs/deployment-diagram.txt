@@ -3,8 +3,19 @@ Shows which classes are executed on which system as if it is a real distributed 
 
 @startuml
 
-class Car;
-class CarRenter;
+node "Agency's Server" {
+	frame Agency
+	frame ManagerSession
+	frame ReservationSession
+}
 
+node "A CarRentalCompany's Server" {
+	frame CarRentalCompany
+	frame Car
+}
+
+node "A Client's Computer" {
+	frame Client
+}
 
 @enduml
