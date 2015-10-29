@@ -3,19 +3,27 @@ Shows which classes are executed on which system as if it is a real distributed 
 
 @startuml
 
-node "Agency's Server" {
-	frame Agency
+node AgencyServer <<RMIRegistry>> {
+	frame Agency <<Registered>>
 	frame ManagerSession
 	frame ReservationSession
 }
 
-node "A CarRentalCompany's Server" {
+node CompanyServer {
 	frame CarRentalCompany
 	frame Car
 }
 
-node "A Client's Computer" {
+node ClientComputer {
 	frame Client
 }
+
+CompanyServer -- AgencyServer
+AgencyServer -- ClientComputer
+
+Agency <--> ManagerSession
+Agency <--> ReservationSession
+
+CarRentalCompany --> Car
 
 @enduml

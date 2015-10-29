@@ -1,35 +1,34 @@
 # Overview
 
-My design consist of an Agency which acts as a naming-service for the companies as well as the entry point for sessions. It also remembers sessions based on name so they can be reused later if wanted, otherwise they should be closed b the user themselves. The methods for adding and getting companies is only visible for the actual sessions (package private).
-To register a company, a manager must first get the remote stub of the company (either by getting it using the rmi naming service, or because the manager is working from the car-company's servers). It can then register this with the agency with a manager session. (In my code this is shown in the RentalServer class.)
-Other than that everything is pretty straight forward.
+My design consist of an Agency which acts as a naming-service for the companies as well as the entry point for sessions. It also remembers sessions based on name so they can be reused later if wanted, otherwise they should be closed by the user themselves (for simplicity I assume this will always be done properly by the user). The methods for adding and retrieving companies is only visible for the actual session objects (package private), thus protecting the companies from unwanted actions by the user and protecting privacy of clients.
+To register a company, a manager must first get the remote stub of the company, either by getting it using the rmi naming service of a company (if they register their company with one, which I don't in my example) or by creating it yourself, if the you are working from the car-company's servers directly. It can then register this with the agency with a manager session. (In my code this is shown in the RentalServer class.)
 
 # Remote classes
 
-* (I)Agency - This is where sessiosn are started and ended, so it's the main entry point to the agency.
+* (I)Agency - This is where sessions are started and ended, it's the main entry point to the agency.
 * (I)Reservation/ManagerSession - Sessions are created on the same host as the agency and not local for each user. This way these sessions have access to the companies (via package private methods of the Agency), while users of the sessions do not (directly).
 * (I)CarRentalCompany - The companies can run on a different server than the Agency (as per the assignment), so they must be remotely accessible.
 
 ## Buildin-RMI
 
 Only the Agency is registered at a RMI Registry. This is required because otherwise the user can't find it.
-CarRentalCompanies don't need to use their RMI Registry, they can register themselves in an Agency directly using a manager session and a remote-stub for their CarRentalCompany object.
+CarRentalCompanies don't need to use their RMI Registry, they can register themselves in an Agency directly using a manager session and a remote-stub that they create themselves for their CarRentalCompany object. If they want a manager to be able to register them with the Agency from a remote computer they will have to set up a RMI Registry, otherwise the remote manager can't find the needed remote-stub. In my solution I let the companies register themselves from a locally created remote-stub.
 
 # Serializable classes
 
-* Quote - Returned when creating a quote (based on constraints).
+* Quote - Returned when creating a quote.
 * Reservation - Returned when confirming quotes.
 * ReservationConstraints - Used to send the user's preferences for a reservation.
 * CarType - Returned to the manager for several methods. I chose to make CarType serializable rather than returning just a name (string), seems like a nicer design that way.
 
-All these classes are read-only (thus contain no public setters). This makes it safe to make them serializable and send them around.
+All these classes are read-only (thus contain no public setters) and immutable. This makes it safe to make them serializable and send them around.
 
 # Lifecycle of sessions
 
 When asking for a session you provide your identification (I simply used a name). If no session exists for you a new one will be created and returned. If one already exists the existing one will be returned, this way you can continue your work after a crash or on a later date. No timeout is used to expire the sessions.
 To end a session you simply call 'endXSession(...)'. The Agency will then 'forget' your session. Though due to how the garbage collector works you'll be able to continue working with the session, only when you release it locally as well will the session truly be ended.
 
-Note: Manager session don't have state. So it might not be nessesary to remember these on the Agency. However now if a manager asks multiple times for a session the system won't need to create a new one every single time.
+Note: Manager session don't have state. So it might not be necessary to remember these on the Agency. However now if a manager asks multiple times for a session the system won't need to create a new one every single time. Perhaps a pool of manager session would be a better solution.
 
 # Thread-safety
 
